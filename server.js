@@ -43,6 +43,7 @@ res.json(myRandomQuotes);
     //      res.json(quotes[i].quote + " " + quotes[i].author);
     //    }
     //  }
+    
     //  res.json([]);
     // let quoteList = require("./quotes.json")
     let searchedQuotes = quotes.filter((quoteObj)=>quoteObj.quote.toLowerCase().includes(searchQuery) ||quoteObj.author.toLowerCase().includes(searchQuery))
