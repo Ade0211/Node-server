@@ -1,166 +1,76 @@
+
+const { response } = require("express");
 const express = require("express");
-const cors = require('cors')
 const app = express();
-const bodyParser = require("body-parser")
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }));
+//load the quotes JSON
+const quotes = require("./quotes.json");
+const lodash = require('lodash')
+var cors = require('cors')
 app.use(cors())
-let welcomeMessage = {
-  id: 0,
-  from: "Bart",
-  text: "Welcome to CYF chat system!"
-}
-let anotherMessage = {
-  id: 1,
-  from: "Ade",
-  text: "hi world!"
-}
-let one = {
-  id: 2,
-  from: "Bart",
-  text: "Welcome to CYF chat system!"
-}
-let two = {
-  id: 3,
-  from: "Ade",
-  text: "hi world!"
-}
-let three = {
-  id: 4,
-  from: "Bart",
-  text: "Welcome to CYF chat system!"
-}
-let four = {
-  id: 5,
-  from: "Ade",
-  text: "hi world!"
-}
-let five = {
-  id: 6,
-  from: "Bart",
-  text: "Welcome to CYF chat system!"
-}
-let six = {
-  id: 7,
-  from: "Ade",
-  text: "hi world!"
-}
-let seven = {
-  id: 8,
-  from: "Bart",
-  text: "Welcome to CYF chat system!"
-}
-let eight = {
-  id: 9,
-  from: "Ade",
-  text: "hi world!"
-}
-let nine = {
-  id: 10,
-  from: "Bart",
-  text: "Welcome to CYF chat system!"
-}
-let ten = {
-  id: 11,
-  from: "Ade",
-  text: "hi world!"
-}
-//This array is our "data store".
-//We will start with one message in the array.
-//Note: messages will be lost when Glitch restarts our server.
-let messages = [welcomeMessage, anotherMessage]
-app.get('/', function(request, response) {
-  response.sendFile(__dirname + '/index.html');
-});
-app.get("/messages/search", (req, res)=>{
-  let mySearch = req.query.term;
-  console.log(mySearch)
-  let filteredList=messages.filter((msg)=> msg.text.toLocaleLowerCase().includes(mySearch.toLocaleLowerCase()))
-  // messages.filter(obj => {obj.text.toLowerCase().includes(mySearch) ? res.json(obj.text): res.json({success:false})})
-  if(filteredList)
-  res.json(filteredList)
-  else
-  res.json({success:false})
-})
-app.get("/submit",(req,res)=>{
-})
-app.get("/messages/display" , (req,res)=> {
-  let counter = 0;
-  let carryOn=true;
-  let i=messages.length-1;
-  let tenMessages=[];
- while(carryOn)
- {
-   tenMessages.push(messages[i]);
-   i=i-1;
-   counter=counter+1;
-   if(counter >= 10 || i < 0){
-    carryOn = false;
-   }
- }
- res.send(tenMessages);
- res.send("it works");
-//  console.log(tenMessages);
- console.log("it is working");
-} )
-app.get('/messages', function(request, response) {
-  let name = request.query.from;
-  console.log(name)
-  response.json(messages);
-});
-// let form = document.getElementById("myForm");
-//Create
-app.post("/messages", function (req, res) {
-  let msg = {
-    // id:req.body.id,
-  from:req.body.from,
-  text:req.body.text}
-  msg.timeSpent = new Date().toISOString();
-  let newId = Math.max.apply(null, messages.map(x=> x.id))+ 1;
-  msg.id =newId
-  console.log(msg)
-    if (Object.keys( msg).length === 0){ 
-    res.send({status:400})
-  }else{ 
-    messages.push(msg);
-    res.json(messages)
-  }
 
-});
 
-app.get("/messages/:id", function (req, res) {
- const {id} = req.params
- const myMessages = messages.find(e=> e.id == id);
-  myMessages? res.json(myMessages): res.send("data not found");
-});
-//delete
-app.delete("/messages/:id", function (req, res) {
-  const {id}= req.params;
- messages= messages.filter(e=> e.id !=id);
-  res.send(messages);
- res.send("single album deleted")
-});
-//update
-app.patch("/messages/:id", function (req, res) {
-  const {id}= req.params;
-  const {from, text} = req.body
- const updateMyMessages= messages.find(e=> e.id ==id);
-  if(from)
-    updateMyMessages.from = from;
-  else
-    updateMyMessages.from = "";
-  if(text)
-    updateMyMessages.text = text;
-  else
-    updateMyMessages.text = "";
-  res.send(updateMyMessages);
- res.send("messages Updated")
-});
-app.get('/messages', function(request, response) {
-  let name = request.query.from;
-  console.log(name)
-  response.json(messages);
-});
-app.listen(process.env.PORT || 8000, ()=> {
-  console.log("server started on port 8000")
+
+
+
+// Now register handlers for some routes:
+//   /                  - Return some helpful welcome info (text)
+//   /quotes            - Should return all quotes (json)
+//   /quotes/random     - Should return ONE quote (json)
+
+
+
+//START OF YOUR CODE...
+
+///////////////
+app.get("/", (req, res)=>{
+  res.send("Home page");
+  })
+
+app.get("/quotes", (req, res)=>{
+res.json(quotes);
+})
+
+app.get("/quotes/random", (req, res)=>{
+let myRandomQuotes = pickFromArray(quotes);
+res.json(myRandomQuotes);
+  })
+
+  app.get("/quotes/search", (req, res)=>{
+    //declare a variable to make user search
+      let searchQuery = req.query.term
+    //  for(let i = 0; i < quotes.length; i++){
+    //    if(quotes[i].quote.toLowerCase().includes(searchQuery) || quotes[i].author.toLowerCase().includes(searchQuery)){
+    //      res.json(quotes[i].quote + " " + quotes[i].author);
+    //    }
+    //  }
+    //  res.json([]);
+    // let quoteList = require("./quotes.json")
+    let searchedQuotes = quotes.filter((quoteObj)=>quoteObj.quote.toLowerCase().includes(searchQuery) ||quoteObj.author.toLowerCase().includes(searchQuery))
+    res.json(searchedQuotes)
+      })
+
+      app.get("/echo", (req, res)=>{
+       let myWord = req.query.word;
+       res.send("hi" + myWord)
+          })
+  
+          app.get("/lodashtesting", function (request, response) {
+            let searchItem=request.query.word;
+            let randomQuote = lodash.sample(quotes);
+            response.json(randomQuote);
+          });      
+    
+//...END OF YOUR CODE
+
+//You can use this function to pick one element at random from a given array
+//example: pickFromArray([1,2,3,4]), or
+//example: pickFromArray(myContactsArray)
+//
+function pickFromArray(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+//Start our server so that it listens for HTTP requests!
+const listener = app.listen(process.env.PORT ||8000, function () {
+  console.log("Your app is listening on port 8000");
 });
