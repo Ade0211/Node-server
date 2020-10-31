@@ -161,6 +161,6 @@ app.get('/messages', function(request, response) {
   console.log(name)
   response.json(messages);
 });
-app.listen(8000, ()=> {
+app.listen(process.env.PORT || 8000, ()=> {
   console.log("server started on port 8000")
 });
